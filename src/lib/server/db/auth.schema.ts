@@ -91,6 +91,34 @@ export const verification = sqliteTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const categories = sqliteTable(
+  "categories",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull().unique()
+  }
+)
+
+export const items = sqliteTable(
+  "items",
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    categoryId: integer('category_id')
+      .notNull()
+      .references(() => categories.id),
+    name: text('name').notNull(),
+    priceCents: integer('price_cents').notNull(),
+  }
+)
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  items: many(items),
+}));
+
+export const itemsRelations = relations(items, ({ one }) => ({
+  category: one(categories, { fields: [items.categoryId], references: [categories.id] }),
+}));
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
